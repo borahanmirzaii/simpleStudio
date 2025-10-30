@@ -195,6 +195,13 @@ export default function Home() {
             <p className="text-green-400 text-sm">✓ {dbMessage}</p>
           </div>
         )}
+
+        {/* Debug: Show env var status */}
+        <div className="mt-4 p-4 bg-blue-500/5 border border-blue-500/20 rounded-lg">
+          <p className="text-blue-400 text-xs font-mono">
+            Debug: NEXT_PUBLIC_SUPABASE_URL = {process.env.NEXT_PUBLIC_SUPABASE_URL ? '✅ Set' : '❌ Missing'}
+          </p>
+        </div>
       </div>
     </div>
   )
