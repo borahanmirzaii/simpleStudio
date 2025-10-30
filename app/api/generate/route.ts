@@ -7,8 +7,37 @@ const genAI = process.env.GEMINI_API_KEY
   ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
   : null
 
+const ALLOWED_EMAIL = 'borahanmirzaii@gmail.com'
+
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      )
+    }
+
+    const token = authHeader.replace('Bearer ', '')
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'Invalid authentication' },
+        { status: 401 }
+      )
+    }
+
+    // Verify the user's email is the allowed one
+    if (user.email !== ALLOWED_EMAIL) {
+      return NextResponse.json(
+        { error: `Access denied. Only ${ALLOWED_EMAIL} can use this service.` },
+        { status: 403 }
+      )
+    }
+
     const { prompt } = await request.json()
 
     if (!prompt || typeof prompt !== 'string') {

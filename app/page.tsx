@@ -3,19 +3,50 @@
 import { useEffect, useState } from 'react'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import GenerationFlow from '@/components/GenerationFlow'
+import LoginForm from '@/components/LoginForm'
+import type { User } from '@supabase/supabase-js'
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
 
+const ALLOWED_EMAIL = 'borahanmirzaii@gmail.com'
+
 export default function Home() {
+  const [user, setUser] = useState<User | null>(null)
+  const [session, setSession] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
   const [dbStatus, setDbStatus] = useState<'checking' | 'connected' | 'error'>('checking')
   const [dbMessage, setDbMessage] = useState('')
   const [prompt, setPrompt] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
 
   useEffect(() => {
+    checkAuth()
     checkDatabaseConnection()
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+      setUser(session?.user ?? null)
+      setLoading(false)
+    })
+
+    return () => subscription.unsubscribe()
   }, [])
+
+  async function checkAuth() {
+    const { data: { session } } = await supabase.auth.getSession()
+    setSession(session)
+    setUser(session?.user ?? null)
+    setLoading(false)
+  }
+
+  async function handleLogout() {
+    await fetch('/api/auth/logout', { method: 'POST' })
+    await supabase.auth.signOut()
+    setUser(null)
+    setSession(null)
+  }
 
   async function checkDatabaseConnection() {
     try {
@@ -42,11 +73,26 @@ export default function Home() {
     }
   }
 
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white/60">Loading...</div>
+      </div>
+    )
+  }
+
+  // Show login form if not authenticated or wrong email
+  if (!user || user.email !== ALLOWED_EMAIL) {
+    return <LoginForm />
+  }
+
   // Show generation flow if generating
   if (isGenerating) {
     return (
       <GenerationFlow
         prompt={prompt}
+        session={session}
         onReset={() => {
           setIsGenerating(false)
           setPrompt('')
@@ -58,6 +104,20 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <div className="w-full max-w-2xl">
+        {/* User Info & Logout */}
+        <div className="mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-sm border border-white/10">
+            <span className="text-white/60 text-xs">👤</span>
+            <span className="text-white/80 text-xs">{user?.email}</span>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 text-white/60 hover:text-white text-xs transition-colors"
+          >
+            Logout
+          </button>
+        </div>
+
         {/* Status Badge */}
         <div className="mb-8 flex items-center justify-center gap-4">
           <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm">
