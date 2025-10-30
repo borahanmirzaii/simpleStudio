@@ -1,7 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { supabase, isSupabaseConfigured } from '@/lib/supabase'
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
 
 export default function Home() {
   const [dbStatus, setDbStatus] = useState<'checking' | 'connected' | 'error'>('checking')
@@ -14,6 +17,13 @@ export default function Home() {
 
   async function checkDatabaseConnection() {
     try {
+      // Check if Supabase is configured
+      if (!isSupabaseConfigured()) {
+        setDbStatus('error')
+        setDbMessage('Supabase credentials not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.')
+        return
+      }
+
       // Test the connection by calling the test function
       const { data, error } = await supabase.rpc('test_connection')
 
