@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { supabase } from '@/lib/supabase'
+import { ALLOWED_EMAIL } from '@/lib/config'
 
 // Initialize Gemini
 const genAI = process.env.GEMINI_API_KEY
   ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
   : null
-
-const ALLOWED_EMAIL = 'borahanmirzaii@gmail.com'
 
 export async function POST(request: NextRequest) {
   try {

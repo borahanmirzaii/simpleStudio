@@ -1,8 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-
-const ALLOWED_EMAIL = 'borahanmirzaii@gmail.com'
+import { NEXT_PUBLIC_ALLOWED_EMAIL as ALLOWED_EMAIL } from '@/lib/config'
 
 export default function LoginForm() {
   const [email, setEmail] = useState('')

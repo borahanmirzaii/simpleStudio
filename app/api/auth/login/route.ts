@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
-
-const ALLOWED_EMAIL = 'borahanmirzaii@gmail.com'
+import { ALLOWED_EMAIL } from '@/lib/config'
 
 export async function POST(request: NextRequest) {
   try {

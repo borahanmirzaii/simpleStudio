@@ -5,11 +5,10 @@ import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import GenerationFlow from '@/components/GenerationFlow'
 import LoginForm from '@/components/LoginForm'
 import type { User } from '@supabase/supabase-js'
+import { NEXT_PUBLIC_ALLOWED_EMAIL as ALLOWED_EMAIL } from '@/lib/config'
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
-
-const ALLOWED_EMAIL = 'borahanmirzaii@gmail.com'
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null)
