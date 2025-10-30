@@ -1,13 +1,18 @@
 'use client'
 
-import { useState } from 'react'
-
-const ALLOWED_EMAIL = 'borahanmirzaii@gmail.com'
+import { useState, useEffect } from 'react'
+import { NEXT_PUBLIC_ALLOWED_EMAIL as ALLOWED_EMAIL } from '@/lib/config'
+import { isSupabaseConfigured } from '@/lib/supabase'
 
 export default function LoginForm() {
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [message, setMessage] = useState('')
+  const [supabaseConfigured, setSupabaseConfigured] = useState(false)
+
+  useEffect(() => {
+    setSupabaseConfigured(isSupabaseConfigured())
+  }, [])
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
@@ -33,7 +38,7 @@ export default function LoginForm() {
       setMessage(data.message)
     } catch (error) {
       setStatus('error')
-      setMessage('Failed to send login link')
+      setMessage(error instanceof Error ? error.message : 'Failed to send login link. Check that Supabase credentials are configured.')
     }
   }
 
@@ -57,11 +62,25 @@ export default function LoginForm() {
             </div>
           </div>
         ) : (
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="p-6 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
-              <label className="block text-white/80 text-sm mb-2">
-                Email Address
-              </label>
+          <>
+            {!supabaseConfigured && (
+              <div className="mb-4 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                <p className="text-yellow-400 text-sm font-semibold mb-2">⚠️ Supabase Not Configured</p>
+                <p className="text-yellow-300/80 text-xs mb-2">
+                  Add your Supabase credentials to .env.local:
+                </p>
+                <code className="block text-yellow-200/60 text-xs bg-black/30 p-2 rounded">
+                  NEXT_PUBLIC_SUPABASE_URL=your-url<br/>
+                  NEXT_PUBLIC_SUPABASE_ANON_KEY=your-key
+                </code>
+              </div>
+            )}
+
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="p-6 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
+                <label className="block text-white/80 text-sm mb-2">
+                  Email Address
+                </label>
               <input
                 type="email"
                 value={email}
@@ -87,12 +106,13 @@ export default function LoginForm() {
 
             <button
               type="submit"
-              disabled={status === 'loading'}
+              disabled={status === 'loading' || !supabaseConfigured}
               className="w-full px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {status === 'loading' ? 'Sending...' : 'Send Login Link'}
             </button>
           </form>
+          </>
         )}
 
         <p className="text-white/40 text-xs text-center mt-8">
