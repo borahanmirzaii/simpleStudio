@@ -10,10 +10,11 @@ interface Scene {
 
 interface GenerationFlowProps {
   prompt: string
+  session: any
   onReset: () => void
 }
 
-export default function GenerationFlow({ prompt, onReset }: GenerationFlowProps) {
+export default function GenerationFlow({ prompt, session, onReset }: GenerationFlowProps) {
   const [status, setStatus] = useState<'generating' | 'success' | 'error'>('generating')
   const [currentStep, setCurrentStep] = useState(0)
   const [story, setStory] = useState('')
@@ -38,7 +39,10 @@ export default function GenerationFlow({ prompt, onReset }: GenerationFlowProps)
 
       const response = await fetch('/api/generate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
+        },
         body: JSON.stringify({ prompt })
       })
 
