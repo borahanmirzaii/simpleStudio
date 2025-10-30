@@ -75,7 +75,8 @@ export async function POST(request: NextRequest) {
 
     try {
       // Step 1: Expand the prompt into a full story using Gemini
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' })
+      // Using Gemini 2.5 Flash (Gemini 1.5 models retired April 2025)
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
 
       const storyPrompt = `You are a creative storyteller. Transform this short idea into a compelling 200-300 word story with vivid visual details:
 
