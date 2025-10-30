@@ -3,8 +3,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 import { supabase } from '@/lib/supabase'
 
 // Initialize Gemini
-const genAI = process.env.GOOGLE_AI_API_KEY
-  ? new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY)
+const genAI = process.env.GEMINI_API_KEY
+  ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
   : null
 
 export async function POST(request: NextRequest) {
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     // Check if API key is configured
     if (!genAI) {
       return NextResponse.json(
-        { error: 'Google AI API key not configured. Please set GOOGLE_AI_API_KEY environment variable.' },
+        { error: 'Gemini API key not configured. Please set GEMINI_API_KEY environment variable.' },
         { status: 500 }
       )
     }
